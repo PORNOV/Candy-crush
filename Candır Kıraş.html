@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candır Kıraş</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .game-title {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #ff4081, 6px 6px 0 rgba(0, 0, 0, 0.2);
+            color: #fff;
+            letter-spacing: 2px;
+        }
+        
+        .game-subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .info-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .info-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .tnt-counter {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .tnt-icon {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #ff0000, #8b0000);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-gap: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .candy {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .candy:hover {
+            transform: scale(1.05);
+        }
+        
+        .candy.selected {
+            border: 3px solid white;
+            transform: scale(1.1);
+        }
+        
+        .candy.red { background: linear-gradient(135deg, #ff416c, #ff4b2b); }
+        .candy.blue { background: linear-gradient(135deg, #2196f3, #21cbf3); }
+        .candy.green { background: linear-gradient(135deg, #4caf50, #8bc34a); }
+        .candy.yellow { background: linear-gradient(135deg, #ffeb3b, #ffc107); }
+        .candy.purple { background: linear-gradient(135deg, #9c27b0, #e91e63); }
+        .candy.orange { background: linear-gradient(135deg, #ff9800, #ff5722); }
+        
+        .tnt {
+            background: linear-gradient(135deg, #ff0000, #8b0000);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tnt::before {
+            content: "TNT";
+            color: white;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+        }
+        
+        .tnt::after {
+            content: "";
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 2px dashed white;
+            border-radius: 5px;
+        }
+        
+        .candy.exploded {
+            animation: explode 0.5s forwards;
+        }
+        
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, #ff4081, #f50057);
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .level-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        select {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .hidden-level-notice {
+            background: rgba(255, 215, 0, 0.3);
+            padding: 10px 20px;
+            border-radius: 10px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #ffeb3b;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        .game-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 100;
+            display: none;
+        }
+        
+        .game-message h2 {
+            margin-bottom: 15px;
+            color: #ffeb3b;
+        }
+        
+        @media (max-width: 600px) {
+            .candy {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .game-title {
+                font-size: 2.2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="game-title">Candır Kıraş</h1>
+        <p class="game-subtitle">TNT'leri patlat, gizli bölümleri aç!</p>
+    </div>
+    
+    <div class="game-container">
+        <div class="game-info">
+            <div class="info-item">
+                <span class="info-label">Bölüm</span>
+                <span class="info-value" id="level">1</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Puan</span>
+                <span class="info-value" id="score">0</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Hamle</span>
+                <span class="info-value" id="moves">25</span>
+            </div>
+        </div>
+        
+        <div class="tnt-counter">
+            <div class="tnt-icon">TNT</div>
+            <span>Patlatılacak TNT: <span id="tntLeft">3</span>/3</span>
+        </div>
+        
+        <div class="level-selector">
+            <label for="levelSelect">Bölüm Seç:</label>
+            <select id="levelSelect">
+                <option value="1">Bölüm 1</option>
+                <option value="2">Bölüm 2</option>
+                <option value="3">Bölüm 3</option>
+                <option value="25" class="hidden-level">Gizli Bölüm 1</option>
+                <option value="50" class="hidden-level">Gizli Bölüm 2</option>
+                <option value="100" class="hidden-level">Gizli Bölüm 3</option>
+                <option value="150" class="hidden-level">Gizli Bölüm 4</option>
+                <option value="200" class="hidden-level">Gizli Bölüm 5</option>
+            </select>
+        </div>
+        
+        <div class="hidden-level-notice" id="hiddenLevelNotice">
+            Tebrikler! Gizli bir bölüm açtınız!
+        </div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- Oyun tahtası JavaScript ile oluşturulacak -->
+        </div>
+        
+        <div class="controls">
+            <button id="hintBtn">İpucu</button>
+            <button id="shuffleBtn">Karıştır</button>
+            <button id="resetBtn">Yeniden Başlat</button>
+            <button id="nextLevelBtn">Sonraki Bölüm</button>
+        </div>
+        
+        <div class="instructions">
+            <h3>Nasıl Oynanır?</h3>
+            <ul>
+                <li>Aynı renkteki şekerleri yan yana getirerek eşleştir</li>
+                <li>Her bölümde 3 TNT'yi patlatman gerekiyor</li>
+                <li>TNT'ler patlayınca 3 kare yakınındaki şekerler de patlar</li>
+                <li>TNT patlatmak gizli bölümleri açar</li>
+                <li>Hamlelerin bitmeden hedefi tamamla!</li>
+                <li>Bölümü tamamlamak için "Sonraki Bölüm" butonuna tıklayın</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="game-message" id="gameMessage">
+        <h2 id="messageTitle">Tebrikler!</h2>
+        <p id="messageText">Bölümü tamamladınız!</p>
+        <button id="messageButton">Tamam</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Oyun değişkenleri
+            const gameBoard = document.getElementById('gameBoard');
+            const levelDisplay = document.getElementById('level');
+            const scoreDisplay = document.getElementById('score');
+            const movesDisplay = document.getElementById('moves');
+            const tntLeftDisplay = document.getElementById('tntLeft');
+            const levelSelect = document.getElementById('levelSelect');
+            const hiddenLevelNotice = document.getElementById('hiddenLevelNotice');
+            const hintBtn = document.getElementById('hintBtn');
+            const shuffleBtn = document.getElementById('shuffleBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const nextLevelBtn = document.getElementById('nextLevelBtn');
+            const gameMessage = document.getElementById('gameMessage');
+            const messageTitle = document.getElementById('messageTitle');
+            const messageText = document.getElementById('messageText');
+            const messageButton = document.getElementById('messageButton');
+            
+            let currentLevel = 1;
+            let score = 0;
+            let movesLeft = 25;
+            let tntCount = 3;
+            let tntDestroyed = 0;
+            let board = [];
+            let selectedCandy = null;
+            let hiddenLevelsUnlocked = [];
+            let isCheckingMatches = false;
+            
+            // Renk sınıfları
+            const candyColors = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+            
+            // Oyun tahtasını oluştur
+            function createBoard() {
+                gameBoard.innerHTML = '';
+                board = [];
+                tntDestroyed = 0;
+                tntLeftDisplay.textContent = tntCount - tntDestroyed;
+                
+                for (let row = 0; row < 8; row++) {
+                    board[row] = [];
+                    for (let col = 0; col < 8; col++) {
+                        // Rastgele şeker veya TNT oluştur
+                        let isTNT = false;
+                        if (tntCount > 0 && Math.random() < 0.05) {
+                            isTNT = true;
+                        }
+                        
+                        const candy = document.createElement('div');
+                        candy.className = isTNT ? 'candy tnt' : `candy ${candyColors[Math.floor(Math.random() * candyColors.length)]}`;
+                        candy.dataset.row = row;
+                        candy.dataset.col = col;
+                        
+                        candy.addEventListener('click', handleCandyClick);
+                        
+                        gameBoard.appendChild(candy);
+                        board[row][col] = {
+                            element: candy,
+                            color: isTNT ? 'tnt' : candy.className.split(' ')[1],
+                            isTNT: isTNT
+                        };
+                    }
+                }
+                
+                // Eğer yeterli TNT oluşmadıysa, rastgele hücreleri TNT yap
+                let currentTNT = countTNT();
+                while (currentTNT < tntCount) {
+                    const randomRow = Math.floor(Math.random() * 8);
+                    const randomCol = Math.floor(Math.random() * 8);
+                    
+                    if (!board[randomRow][randomCol].isTNT) {
+                        board[randomRow][randomCol].element.className = 'candy tnt';
+                        board[randomRow][randomCol].color = 'tnt';
+                        board[randomRow][randomCol].isTNT = true;
+                        currentTNT++;
+                    }
+                }
+                
+                updateDisplay();
+            }
+            
+            // TNT sayısını say
+            function countTNT() {
+                let count = 0;
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (board[row][col].isTNT) {
+                            count++;
+                        }
+                    }
+                }
+                return count;
+            }
+            
+            // Şeker tıklama işleyicisi
+            function handleCandyClick(event) {
+                if (movesLeft <= 0 || isCheckingMatches) return;
+                
+                const candy = event.currentTarget;
+                const row = parseInt(candy.dataset.row);
+                const col = parseInt(candy.dataset.col);
+                
+                if (selectedCandy === null) {
+                    // İlk şeker seçildi
+                    selectedCandy = { row, col, element: candy };
+                    candy.classList.add('selected');
+                } else {
+                    // İkinci şeker seçildi, değiştirme işlemi yap
+                    const firstRow = selectedCandy.row;
+                    const firstCol = selectedCandy.col;
+                    
+                    // Sadece yan yana şekerler değiştirilebilir
+                    if ((Math.abs(firstRow - row) === 1 && firstCol === col) || 
+                        (Math.abs(firstCol - col) === 1 && firstRow === row)) {
+                        
+                        // Önceki seçimi temizle
+                        selectedCandy.element.classList.remove('selected');
+                        
+                        // Şekerleri değiştir
+                        swapCandies(firstRow, firstCol, row, col);
+                        
+                        // Hamleyi say
+                        movesLeft--;
+                        updateDisplay();
+                        
+                        // Eşleşme kontrolü
+                        isCheckingMatches = true;
+                        setTimeout(() => {
+                            checkMatches();
+                            isCheckingMatches = false;
+                        }, 300);
+                    } else {
+                        // Geçersiz hamle, seçimi sıfırla
+                        selectedCandy.element.classList.remove('selected');
+                        selectedCandy = null;
+                        handleCandyClick(event); // Yeni seçim yap
+                    }
+                }
+            }
+            
+            // Şekerleri değiştir
+            function swapCandies(row1, col1, row2, col2) {
+                const temp = board[row1][col1];
+                board[row1][col1] = board[row2][col2];
+                board[row2][col2] = temp;
+                
+                // DOM'u güncelle
+                gameBoard.innerHTML = '';
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const candy = board[row][col].element;
+                        candy.dataset.row = row;
+                        candy.dataset.col = col;
+                        gameBoard.appendChild(candy);
+                    }
+                }
+                
+                // Tıklama olaylarını yeniden bağla
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        board[row][col].element.addEventListener('click', handleCandyClick);
+                    }
+                }
+            }
+            
+            // Eşleşmeleri kontrol et
+            function checkMatches() {
+                let hasMatches = false;
+                
+                // TNT'leri kontrol et
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        if (board[row][col].isTNT) {
+                            // TNT'ler otomatik olarak patlamaz, sadece yakınındaki eşleşmelerle patlar
+                        }
+                    }
+                }
+                
+                // Yatay eşleşmeleri kontrol et
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 6; col++) {
+                        const color1 = board[row][col].color;
+                        const color2 = board[row][col+1].color;
+                        const color3 = board[row][col+2].color;
+                        
+                        if (color1 === color2 && color2 === color3 && color1 !== 'tnt') {
+                            removeCandy(row, col);
+                            removeCandy(row, col+1);
+                            removeCandy(row, col+2);
+                            hasMatches = true;
+                            score += 30;
+                            
+                            // TNT kontrolü - eğer patlayan şekerler TNT'ye yakınsa TNT'yi patlat
+                            checkTNTExplosion(row, col);
+                            checkTNTExplosion(row, col+1);
+                            checkTNTExplosion(row, col+2);
+                        }
+                    }
+                }
+                
+                // Dikey eşleşmeleri kontrol et
+                for (let col = 0; col < 8; col++) {
+                    for (let row = 0; row < 6; row++) {
+                        const color1 = board[row][col].color;
+                        const color2 = board[row+1][col].color;
+                        const color3 = board[row+2][col].color;
+                        
+                        if (color1 === color2 && color2 === color3 && color1 !== 'tnt') {
+                            removeCandy(row, col);
+                            removeCandy(row+1, col);
+                            removeCandy(row+2, col);
+                            hasMatches = true;
+                            score += 30;
+                            
+                            // TNT kontrolü - eğer patlayan şekerler TNT'ye yakınsa TNT'yi patlat
+                            checkTNTExplosion(row, col);
+                            checkTNTExplosion(row+1, col);
+                            checkTNTExplosion(row+2, col);
+                        }
+                    }
+                }
+                
+                if (hasMatches) {
+                    // Boşlukları doldur
+                    setTimeout(fillEmptySpaces, 500);
+                }
+                
+                updateDisplay();
+                
+                // Oyun bitiş kontrolü
+                checkGameEnd();
+            }
+            
+            // TNT patlama kontrolü
+            function checkTNTExplosion(row, col) {
+                // Patlayan şekerin etrafındaki TNT'leri kontrol et
+                for (let r = Math.max(0, row-1); r <= Math.min(7, row+1); r++) {
+                    for (let c = Math.max(0, col-1); c <= Math.min(7, col+1); c++) {
+                        if (board[r][c].isTNT) {
+                            explodeTNT(r, c);
+                        }
+                    }
+                }
+            }
+            
+            // TNT patlatma
+            function explodeTNT(row, col) {
+                // TNT zaten patlamışsa tekrar patlatma
+                if (board[row][col].color === 'empty') return;
+                
+                // 3x3 alandaki şekerleri patlat
+                for (let r = Math.max(0, row-1); r <= Math.min(7, row+1); r++) {
+                    for (let c = Math.max(0, col-1); c <= Math.min(7, col+1); c++) {
+                        if (!board[r][c].isTNT || (r === row && c === col)) {
+                            removeCandy(r, c);
+                        }
+                    }
+                }
+                
+                // TNT'yi kaldır
+                removeCandy(row, col);
+                tntDestroyed++;
+                tntLeftDisplay.textContent = tntCount - tntDestroyed;
+                
+                // Puan ekle
+                score += 100;
+                
+                // Gizli bölüm kontrolü
+                if (currentLevel % 25 === 0 && !hiddenLevelsUnlocked.includes(currentLevel)) {
+                    hiddenLevelsUnlocked.push(currentLevel);
+                    showHiddenLevelNotice();
+                }
+            }
+            
+            // Şekeri kaldır
+            function removeCandy(row, col) {
+                if (board[row][col].color !== 'empty') {
+                    board[row][col].element.classList.add('exploded');
+                    setTimeout(() => {
+                        board[row][col].element.style.visibility = 'hidden';
+                    }, 500);
+                    board[row][col].color = 'empty';
+                    board[row][col].isTNT = false;
+                }
+            }
+            
+            // Boşlukları doldur
+            function fillEmptySpaces() {
+                for (let col = 0; col < 8; col++) {
+                    let emptySpaces = 0;
+                    
+                    // Sütunu aşağıdan yukarıya tarayarak boşlukları say
+                    for (let row = 7; row >= 0; row--) {
+                        if (board[row][col].color === 'empty') {
+                            emptySpaces++;
+                        } else if (emptySpaces > 0) {
+                            // Şekeri aşağı kaydır
+                            const newRow = row + emptySpaces;
+                            board[newRow][col] = board[row][col];
+                            board[row][col] = {
+                                element: document.createElement('div'),
+                                color: 'empty',
+                                isTNT: false
+                            };
+                        }
+                    }
+                    
+                    // Boşlukları yeni şekerlerle doldur
+                    for (let row = 0; row < emptySpaces; row++) {
+                        board[row][col] = {
+                            element: document.createElement('div'),
+                            color: candyColors[Math.floor(Math.random() * candyColors.length)],
+                            isTNT: false
+                        };
+                        
+                        const candy = board[row][col].element;
+                        candy.className = `candy ${board[row][col].color}`;
+                        candy.dataset.row = row;
+                        candy.dataset.col = col;
+                        candy.addEventListener('click', handleCandyClick);
+                    }
+                }
+                
+                // DOM'u güncelle
+                gameBoard.innerHTML = '';
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const candy = board[row][col].element;
+                        candy.dataset.row = row;
+                        candy.dataset.col = col;
+                        gameBoard.appendChild(candy);
+                    }
+                }
+                
+                // Tıklama olaylarını yeniden bağla
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        board[row][col].element.addEventListener('click', handleCandyClick);
+                    }
+                }
+                
+                // Tekrar eşleşme kontrolü
+                setTimeout(() => {
+                    checkMatches();
+                }, 300);
+            }
+            
+            // Gizli bölüm bildirimi göster
+            function showHiddenLevelNotice() {
+                hiddenLevelNotice.style.display = 'block';
+                setTimeout(() => {
+                    hiddenLevelNotice.style.display = 'none';
+                }, 3000);
+            }
+            
+            // Oyun bitişini kontrol et
+            function checkGameEnd() {
+                if (movesLeft <= 0) {
+                    // Hamle bitti
+                    setTimeout(() => {
+                        showMessage('Oyun Bitti!', 'Hamleleriniz bitti! Yeniden deneyin.', 'Tamam');
+                    }, 500);
+                }
+            }
+            
+            // Mesaj göster
+            function showMessage(title, text, buttonText) {
+                messageTitle.textContent = title;
+                messageText.textContent = text;
+                messageButton.textContent = buttonText;
+                gameMessage.style.display = 'block';
+            }
+            
+            // Sonraki bölüme geç
+            function nextLevel() {
+                if (tntDestroyed >= tntCount) {
+                    currentLevel++;
+                    if (currentLevel > 250) {
+                        showMessage('Tebrikler!', 'Tüm bölümleri tamamladınız!', 'Harika!');
+                        currentLevel = 1;
+                    }
+                    
+                    levelDisplay.textContent = currentLevel;
+                    movesLeft = 25 + Math.floor(currentLevel / 10) * 5;
+                    tntCount = 3 + Math.floor(currentLevel / 25);
+                    tntLeftDisplay.textContent = tntCount;
+                    
+                    createBoard();
+                } else {
+                    showMessage('Henüz Değil!', 'Önce tüm TNT\'leri patlatmalısınız!', 'Tamam');
+                }
+            }
+            
+            // Bölümü sıfırla
+            function resetLevel() {
+                movesLeft = 25 + Math.floor(currentLevel / 10) * 5;
+                score = 0;
+                createBoard();
+            }
+            
+            // Ekranı güncelle
+            function updateDisplay() {
+                scoreDisplay.textContent = score;
+                movesDisplay.textContent = movesLeft;
+                tntLeftDisplay.textContent = tntCount - tntDestroyed;
+            }
+            
+            // Bölüm seçici işleyicisi
+            levelSelect.addEventListener('change', function() {
+                currentLevel = parseInt(this.value);
+                levelDisplay.textContent = currentLevel;
+                movesLeft = 25 + Math.floor(currentLevel / 10) * 5;
+                tntCount = 3 + Math.floor(currentLevel / 25);
+                tntLeftDisplay.textContent = tntCount;
+                score = 0;
+                createBoard();
+            });
+            
+            // Buton işlevleri
+            hintBtn.addEventListener('click', function() {
+                showMessage('İpucu', 'TNT\'leri patlatmak için onların yakınındaki şekerleri eşleştirin. TNT patlayınca 3x3 alandaki tüm şekerler yok olur!', 'Anladım');
+            });
+            
+            shuffleBtn.addEventListener('click', function() {
+                if (movesLeft > 0) {
+                    createBoard();
+                    movesLeft--;
+                    updateDisplay();
+                }
+            });
+            
+            resetBtn.addEventListener('click', resetLevel);
+            
+            nextLevelBtn.addEventListener('click', nextLevel);
+            
+            messageButton.addEventListener('click', function() {
+                gameMessage.style.display = 'none';
+            });
+            
+            // Oyunu başlat
+            createBoard();
+        });
+    </script>
+</body>
+</html>
